@@ -25,9 +25,10 @@
 import sys, os, random
 
 import numpy as np
-
 import tensorflow as tf
+
 from tensorflow import keras
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 #
 # Some basic parameters for the model/training
@@ -124,17 +125,10 @@ model.compile(
 # Preprocess training data; need all training phrases with same length
 #
 
-train_data = keras.preprocessing.sequence.pad_sequences(
-	train_data,
-	value=PADDING[1],
-	padding='post',
-	maxlen=pad_to)
+pad = lambda x: pad_sequences(x, value=PADDING[1], padding='post', maxlen=pad_to)
 
-test_data = keras.preprocessing.sequence.pad_sequences(
-	test_data,
-	value=PADDING[1],
-	padding='post',
-	maxlen=pad_to)
+train_data = pad(train_data)
+test_data = pad(test_data)
 
 #
 # Load previously trained model parameters, or train model anew.
@@ -180,10 +174,11 @@ indices = [ random.randint(0,len(test_data)) for i in range(N_print) ]
 phrases = [ test_data[i]   for i in indices ]
 labels  = [ test_labels[i] for i in indices ]
 
-# Check we know how to convert data back and forth
-phrases = [ [idx_to_tok.get(i,UNKNOWN[0]) for i in l] for l in phrases ] # numpy => python list(list(string))
-phrases = [ [tok_to_idx.get(t,UNKNOWN[1]) for t in l] for l in phrases ] # list(list(string)) => list(list(int))
-phrases = np.array( [np.array(x) for x in phrases] ) # python list(list(int)) => numpy
+# Check we know how to convert data back and forth:
+# numpy => list(list(string)) [a] => list(list(int)) [b] => numpy [c]
+phrases = [ [idx_to_tok.get(i,UNKNOWN[0]) for i in l] for l in phrases ] # [a]
+phrases = [ [tok_to_idx.get(t,UNKNOWN[1]) for t in l] for l in phrases ] # [b]
+phrases = np.array( [np.array(x) for x in phrases] ) # [c]
 
 # Predict sentiment of regenerated data.
 sentiments = model.predict( phrases )

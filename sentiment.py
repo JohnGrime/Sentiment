@@ -54,6 +54,7 @@ model_path = 'model.hdf5'
 PADDING = ('<PAD>', 0)
 START   = ('<START>', 1)
 UNKNOWN = ('<UNKNOWN>', 2)
+UNUSED  = ('<UNUSED>', 3) # reserved by Keras?
 
 #
 # Train using the standard Keras IMDB dataset: reviews that contain both the
@@ -83,7 +84,7 @@ tmp = imdb.get_word_index().items()
 tmp = sorted( [(k,v) for k,v in tmp], key=lambda x: x[1] )[:max_vocab] # limit vocab!
 
 tok_to_idx = dict( {x for x in [PADDING,START,UNKNOWN]} )
-tok_to_idx.update( {tok:(idx+UNKNOWN[1]+1) for tok,idx in tmp} )
+tok_to_idx.update( {tok:(idx+UNUSED[1]) for tok,idx in tmp} )
 
 idx_to_tok = dict( {(idx,tok) for tok,idx in tok_to_idx.items()} )
 

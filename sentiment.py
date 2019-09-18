@@ -30,18 +30,6 @@ import tensorflow as tf
 from tensorflow import keras
 
 #
-# Some utility routines
-#
-
-def print_results(phrases, labels, sentiments, pad_idx, idx_to_tok):
-	max_i = min(N_print,len(phrases))
-	for i in range(max_i):
-		tmp = [idx for idx in phrases[i] if idx != pad_idx]
-		print()
-		print(' '.join( [idx_to_tok.get(idx,'<??>') for idx in tmp] ))
-		print(f'Sentiment: {sentiments[i]}, Label: {labels[i]}')
-
-#
 # Some basic parameters for the model/training
 #
 
@@ -95,7 +83,7 @@ tmp = imdb.get_word_index().items()
 tmp = sorted( [(k,v) for k,v in tmp], key=lambda x: x[1] )[:max_vocab] # limit vocab!
 
 tok_to_idx = dict( {x for x in [PADDING,START,UNKNOWN]} )
-tok_to_idx.update( {tok:(idx+UNKNOWN[1]) for tok,idx in tmp} )
+tok_to_idx.update( {tok:(idx+UNKNOWN[1]+1) for tok,idx in tmp} )
 
 idx_to_tok = dict( {(idx,tok) for tok,idx in tok_to_idx.items()} )
 
